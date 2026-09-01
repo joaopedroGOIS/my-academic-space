@@ -10,33 +10,141 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AnotacoesRouteImport } from './routes/anotacoes'
+import { Route as CalendarioRouteImport } from './routes/calendario'
+import { Route as CronometroRouteImport } from './routes/cronometro'
+import { Route as CursoRouteImport } from './routes/curso'
+import { Route as FaculdadeRouteImport } from './routes/faculdade'
+import { Route as MateriasRouteImport } from './routes/materias'
+import { Route as SemestresRouteImport } from './routes/semestres'
+import { Route as TrabalhosRouteImport } from './routes/trabalhos'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AnotacoesRoute = AnotacoesRouteImport.update({
+  id: '/anotacoes',
+  path: '/anotacoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CalendarioRoute = CalendarioRouteImport.update({
+  id: '/calendario',
+  path: '/calendario',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CronometroRoute = CronometroRouteImport.update({
+  id: '/cronometro',
+  path: '/cronometro',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CursoRoute = CursoRouteImport.update({
+  id: '/curso',
+  path: '/curso',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FaculdadeRoute = FaculdadeRouteImport.update({
+  id: '/faculdade',
+  path: '/faculdade',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MateriasRoute = MateriasRouteImport.update({
+  id: '/materias',
+  path: '/materias',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SemestresRoute = SemestresRouteImport.update({
+  id: '/semestres',
+  path: '/semestres',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TrabalhosRoute = TrabalhosRouteImport.update({
+  id: '/trabalhos',
+  path: '/trabalhos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/anotacoes': typeof AnotacoesRoute
+  '/calendario': typeof CalendarioRoute
+  '/cronometro': typeof CronometroRoute
+  '/curso': typeof CursoRoute
+  '/faculdade': typeof FaculdadeRoute
+  '/materias': typeof MateriasRoute
+  '/semestres': typeof SemestresRoute
+  '/trabalhos': typeof TrabalhosRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/anotacoes': typeof AnotacoesRoute
+  '/calendario': typeof CalendarioRoute
+  '/cronometro': typeof CronometroRoute
+  '/curso': typeof CursoRoute
+  '/faculdade': typeof FaculdadeRoute
+  '/materias': typeof MateriasRoute
+  '/semestres': typeof SemestresRoute
+  '/trabalhos': typeof TrabalhosRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/anotacoes': typeof AnotacoesRoute
+  '/calendario': typeof CalendarioRoute
+  '/cronometro': typeof CronometroRoute
+  '/curso': typeof CursoRoute
+  '/faculdade': typeof FaculdadeRoute
+  '/materias': typeof MateriasRoute
+  '/semestres': typeof SemestresRoute
+  '/trabalhos': typeof TrabalhosRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/anotacoes'
+    | '/calendario'
+    | '/cronometro'
+    | '/curso'
+    | '/faculdade'
+    | '/materias'
+    | '/semestres'
+    | '/trabalhos'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/anotacoes'
+    | '/calendario'
+    | '/cronometro'
+    | '/curso'
+    | '/faculdade'
+    | '/materias'
+    | '/semestres'
+    | '/trabalhos'
+  id:
+    | '__root__'
+    | '/'
+    | '/anotacoes'
+    | '/calendario'
+    | '/cronometro'
+    | '/curso'
+    | '/faculdade'
+    | '/materias'
+    | '/semestres'
+    | '/trabalhos'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AnotacoesRoute: typeof AnotacoesRoute
+  CalendarioRoute: typeof CalendarioRoute
+  CronometroRoute: typeof CronometroRoute
+  CursoRoute: typeof CursoRoute
+  FaculdadeRoute: typeof FaculdadeRoute
+  MateriasRoute: typeof MateriasRoute
+  SemestresRoute: typeof SemestresRoute
+  TrabalhosRoute: typeof TrabalhosRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +156,75 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/anotacoes': {
+      id: '/anotacoes'
+      path: '/anotacoes'
+      fullPath: '/anotacoes'
+      preLoaderRoute: typeof AnotacoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/calendario': {
+      id: '/calendario'
+      path: '/calendario'
+      fullPath: '/calendario'
+      preLoaderRoute: typeof CalendarioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cronometro': {
+      id: '/cronometro'
+      path: '/cronometro'
+      fullPath: '/cronometro'
+      preLoaderRoute: typeof CronometroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/curso': {
+      id: '/curso'
+      path: '/curso'
+      fullPath: '/curso'
+      preLoaderRoute: typeof CursoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/faculdade': {
+      id: '/faculdade'
+      path: '/faculdade'
+      fullPath: '/faculdade'
+      preLoaderRoute: typeof FaculdadeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/materias': {
+      id: '/materias'
+      path: '/materias'
+      fullPath: '/materias'
+      preLoaderRoute: typeof MateriasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/semestres': {
+      id: '/semestres'
+      path: '/semestres'
+      fullPath: '/semestres'
+      preLoaderRoute: typeof SemestresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/trabalhos': {
+      id: '/trabalhos'
+      path: '/trabalhos'
+      fullPath: '/trabalhos'
+      preLoaderRoute: typeof TrabalhosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AnotacoesRoute: AnotacoesRoute,
+  CalendarioRoute: CalendarioRoute,
+  CronometroRoute: CronometroRoute,
+  CursoRoute: CursoRoute,
+  FaculdadeRoute: FaculdadeRoute,
+  MateriasRoute: MateriasRoute,
+  SemestresRoute: SemestresRoute,
+  TrabalhosRoute: TrabalhosRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

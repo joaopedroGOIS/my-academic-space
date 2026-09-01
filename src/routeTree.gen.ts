@@ -10,33 +10,73 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CursoRouteImport } from './routes/curso'
+import { Route as FaculdadeRouteImport } from './routes/faculdade'
+import { Route as MateriasRouteImport } from './routes/materias'
+import { Route as SemestresRouteImport } from './routes/semestres'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CursoRoute = CursoRouteImport.update({
+  id: '/curso',
+  path: '/curso',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FaculdadeRoute = FaculdadeRouteImport.update({
+  id: '/faculdade',
+  path: '/faculdade',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MateriasRoute = MateriasRouteImport.update({
+  id: '/materias',
+  path: '/materias',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SemestresRoute = SemestresRouteImport.update({
+  id: '/semestres',
+  path: '/semestres',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/curso': typeof CursoRoute
+  '/faculdade': typeof FaculdadeRoute
+  '/materias': typeof MateriasRoute
+  '/semestres': typeof SemestresRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/curso': typeof CursoRoute
+  '/faculdade': typeof FaculdadeRoute
+  '/materias': typeof MateriasRoute
+  '/semestres': typeof SemestresRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/curso': typeof CursoRoute
+  '/faculdade': typeof FaculdadeRoute
+  '/materias': typeof MateriasRoute
+  '/semestres': typeof SemestresRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/curso' | '/faculdade' | '/materias' | '/semestres'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/curso' | '/faculdade' | '/materias' | '/semestres'
+  id: '__root__' | '/' | '/curso' | '/faculdade' | '/materias' | '/semestres'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CursoRoute: typeof CursoRoute
+  FaculdadeRoute: typeof FaculdadeRoute
+  MateriasRoute: typeof MateriasRoute
+  SemestresRoute: typeof SemestresRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +88,43 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/curso': {
+      id: '/curso'
+      path: '/curso'
+      fullPath: '/curso'
+      preLoaderRoute: typeof CursoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/faculdade': {
+      id: '/faculdade'
+      path: '/faculdade'
+      fullPath: '/faculdade'
+      preLoaderRoute: typeof FaculdadeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/materias': {
+      id: '/materias'
+      path: '/materias'
+      fullPath: '/materias'
+      preLoaderRoute: typeof MateriasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/semestres': {
+      id: '/semestres'
+      path: '/semestres'
+      fullPath: '/semestres'
+      preLoaderRoute: typeof SemestresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CursoRoute: CursoRoute,
+  FaculdadeRoute: FaculdadeRoute,
+  MateriasRoute: MateriasRoute,
+  SemestresRoute: SemestresRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

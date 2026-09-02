@@ -104,7 +104,7 @@ export function TrabalhoDetalhe({
             step={5}
             value={trabalho.progresso}
             onChange={(e) => onProgressChange(clampProgresso(e.target.value))}
-            className="h-2 flex-1 cursor-pointer accent-[oklch(var(--primary))]"
+            className="h-2 flex-1 cursor-pointer accent-primary"
           />
           <div className="flex items-center gap-2">
             <input

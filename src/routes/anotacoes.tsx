@@ -1,87 +1,112 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { NotebookPen, Plus, Search } from "lucide-react";
+import { NotebookPen } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
-import { BackButton } from "@/components/layout/BackButton";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { noteSubjects } from "@/data/mockData";
+import { NoteEditor, type SaveStatus } from "@/components/anotacoes/NoteEditor";
+import { NotesSidebar, type NotesGroup } from "@/components/anotacoes/NotesSidebar";
+import { useMaterias } from "@/lib/academicStorage";
+import { useNotas, type Nota } from "@/lib/notesStorage";
 
 export const Route = createFileRoute("/anotacoes")({
   head: () => ({
     meta: [
       { title: "Anotações — Meu Espaço Acadêmico" },
-      { name: "description", content: "Escreva e organize suas anotações de aula por matéria e por encontro." },
+      { name: "description", content: "Escreva e organize suas anotações de aula por matéria, com editor de texto e salvamento automático." },
       { property: "og:title", content: "Anotações — Meu Espaço Acadêmico" },
-      { property: "og:description", content: "Escreva e organize suas anotações de aula por matéria e por encontro." },
+      { property: "og:description", content: "Escreva e organize suas anotações de aula por matéria, com editor de texto e salvamento automático." },
     ],
   }),
   component: AnotacoesPage,
 });
 
 function AnotacoesPage() {
+  const { items: notas, hydrated, add, update, remove } = useNotas();
+  const { items: materias } = useMaterias();
+  const [query, setQuery] = useState("");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [status, setStatus] = useState<SaveStatus>("idle");
+  const savedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => () => { if (savedTimer.current) clearTimeout(savedTimer.current); }, []);
+
+  const selected = notas.find((n) => n.id === selectedId) ?? null;
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return notas;
+    return notas.filter(
+      (n) => n.titulo.toLowerCase().includes(q) || n.conteudo.toLowerCase().includes(q),
+    );
+  }, [notas, query]);
+
+  const groups = useMemo<NotesGroup[]>(() => {
+    const byMateria = new Map<string, Nota[]>();
+    for (const nota of filtered) {
+      const key = nota.materiaId ?? "sem-materia";
+      byMateria.set(key, [...(byMateria.get(key) ?? []), nota]);
+    }
+    const result: NotesGroup[] = [];
+    for (const materia of materias) {
+      const list = byMateria.get(materia.id);
+      if (list?.length) result.push({ materiaId: materia.id, materiaNome: materia.nome, notas: list });
+    }
+    const orphans = filtered.filter((n) => !n.materiaId || !materias.some((m) => m.id === n.materiaId));
+    if (orphans.length) result.push({ materiaId: null, materiaNome: "Sem matéria", notas: orphans });
+    return result;
+  }, [filtered, materias]);
+
+  const markSaving = () => {
+    setStatus("saving");
+    if (savedTimer.current) clearTimeout(savedTimer.current);
+    savedTimer.current = setTimeout(() => setStatus("saved"), 600);
+  };
+
+  const handleCreate = () => {
+    const nota = add(materias[0]?.id ?? null);
+    setSelectedId(nota.id);
+    setStatus("saved");
+  };
+
+  const handleDelete = (id: string) => {
+    remove(id);
+    if (selectedId === id) setSelectedId(null);
+  };
+
   return (
     <div className="flex min-h-[calc(100vh-3.5rem)] flex-col lg:h-screen lg:flex-row">
-      {/* Barra lateral interna */}
-      <aside className="flex shrink-0 flex-col border-b border-border bg-card lg:h-full lg:w-72 lg:border-b-0 lg:border-r">
-        <div className="space-y-3 border-b border-border p-4">
-          <div className="flex items-center gap-2">
-            <BackButton label="Anotações" />
-            <NotebookPen className="size-4 shrink-0 text-primary" />
-            <h1 className="text-sm font-semibold text-foreground">Anotações</h1>
-          </div>
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input placeholder="Pesquisar anotações" className="pl-9" />
-          </div>
-          <Button className="w-full">
-            <Plus className="size-4" />
-            Nova anotação
-          </Button>
-        </div>
+      <NotesSidebar
+        groups={groups}
+        query={query}
+        onQueryChange={setQuery}
+        selectedId={selectedId}
+        onSelect={(id) => { setSelectedId(id); setStatus("idle"); }}
+        onCreate={handleCreate}
+        onDelete={handleDelete}
+      />
 
-        <div className="flex-1 space-y-5 overflow-y-auto p-4">
-          {noteSubjects.map((subject) => (
-            <div key={subject.id}>
-              <p className="px-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                {subject.subject}
-              </p>
-              <ul className="mt-2 space-y-1">
-                {subject.lessons.map((lesson) => (
-                  <li key={lesson.id}>
-                    <button
-                      type="button"
-                      className="flex w-full items-center justify-between gap-2 rounded-lg px-2.5 py-2 text-left transition-colors hover:bg-accent"
-                    >
-                      <span className="truncate text-sm text-foreground">{lesson.title}</span>
-                      <span className="shrink-0 text-xs text-muted-foreground">{lesson.date}</span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-      </aside>
-
-      {/* Área do editor */}
-      <section className="flex flex-1 flex-col bg-card">
-        <div className="border-b border-border px-6 py-5">
-          <h2 className="text-lg font-semibold text-foreground">Administração Científica</h2>
-          <p className="text-xs text-muted-foreground">Administração · Editada há 2 horas</p>
-        </div>
-        <div className="flex flex-1 items-center justify-center p-8">
+      {selected ? (
+        <NoteEditor
+          nota={selected}
+          materias={materias}
+          status={status}
+          onChange={(patch) => { update(selected.id, patch); markSaving(); }}
+        />
+      ) : (
+        <section className="flex flex-1 items-center justify-center bg-card p-8">
           <div className="max-w-md text-center">
             <div className="mx-auto grid size-12 place-items-center rounded-2xl bg-accent">
               <NotebookPen className="size-6 text-primary" />
             </div>
-            <p className="mt-4 text-sm font-medium text-foreground">Editor de anotações</p>
+            <p className="mt-4 text-sm font-medium text-foreground">
+              {hydrated && notas.length === 0 ? "Nenhuma anotação ainda" : "Selecione uma anotação"}
+            </p>
             <p className="mt-1 text-sm text-muted-foreground">
-              Esta área receberá o editor completo na próxima etapa. Por enquanto, ela apenas
-              reserva o espaço da escrita.
+              Crie uma nova anotação para começar a escrever durante a aula. Tudo é salvo
+              automaticamente enquanto você digita.
             </p>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   );
 }

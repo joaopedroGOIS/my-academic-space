@@ -45,10 +45,10 @@ export function useNotas() {
     }
   }, [items, hydrated]);
 
-  const add = useCallback((materiaId: string | null): Nota => {
+  const add = useCallback((titulo: string, materiaId: string | null): Nota => {
     const nota: Nota = {
       id: crypto.randomUUID(),
-      titulo: "Nova anotação",
+      titulo: titulo.trim() || "Sem título",
       materiaId,
       conteudo: "",
       updatedAt: new Date().toISOString(),

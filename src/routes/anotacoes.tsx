@@ -2,6 +2,11 @@ import { createFileRoute } from "@tanstack/react-router";
 import { NotebookPen } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { NoteEditor, type SaveStatus } from "@/components/anotacoes/NoteEditor";
 import { NotesSidebar, type NotesGroup } from "@/components/anotacoes/NotesSidebar";
 import { useMaterias } from "@/lib/academicStorage";
@@ -25,6 +30,9 @@ function AnotacoesPage() {
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [status, setStatus] = useState<SaveStatus>("idle");
+  const [createOpen, setCreateOpen] = useState(false);
+  const [draftTitle, setDraftTitle] = useState("");
+  const [draftMateriaId, setDraftMateriaId] = useState<string>("none");
   const savedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => () => { if (savedTimer.current) clearTimeout(savedTimer.current); }, []);
@@ -61,10 +69,24 @@ function AnotacoesPage() {
     savedTimer.current = setTimeout(() => setStatus("saved"), 600);
   };
 
-  const handleCreate = () => {
-    const nota = add(materias[0]?.id ?? null);
+    const handleCreate = () => {
+    setDraftTitle("");
+    setDraftMateriaId(materias[0]?.id ?? "none");
+    setCreateOpen(true);
+  };
+
+  const handleConfirmCreate = () => {
+    const materiaId = draftMateriaId === "none" ? null : draftMateriaId;
+    const title = draftTitle.trim() || "Nova anotação";
+    const nota = add(title, materiaId);
     setSelectedId(nota.id);
     setStatus("saved");
+    setCreateOpen(false);
+    // foco no editor após abrir
+    setTimeout(() => {
+      const el = document.querySelector("[contenteditable]") as HTMLElement | null;
+      el?.focus();
+    }, 100);
   };
 
   const handleDelete = (id: string) => {
@@ -107,6 +129,37 @@ function AnotacoesPage() {
           </div>
         </section>
       )}
+      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Nova anotação</DialogTitle>
+            <DialogDescription>Crie uma anotação vinculada a uma matéria.</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-2">
+            <div className="grid gap-2">
+              <Label htmlFor="nota-titulo">Título da anotação</Label>
+              <Input id="nota-titulo" placeholder="Ex: Aula 01 - Introdução" value={draftTitle} onChange={(e) => setDraftTitle(e.target.value)} autoFocus />
+            </div>
+            <div className="grid gap-2">
+              <Label>Matéria</Label>
+              <Select value={draftMateriaId} onValueChange={setDraftMateriaId}>
+                <SelectTrigger><SelectValue placeholder="Selecione a matéria" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Sem matéria</SelectItem>
+                  {materias.map((m) => (
+                    <SelectItem key={m.id} value={m.id}>{m.nome}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {materias.length === 0 && <p className="text-xs text-muted-foreground">Nenhuma matéria cadastrada. Cadastre em Matérias primeiro.</p>}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCreateOpen(false)}>Cancelar</Button>
+            <Button onClick={handleConfirmCreate}>Criar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

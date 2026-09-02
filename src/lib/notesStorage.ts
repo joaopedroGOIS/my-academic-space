@@ -20,7 +20,7 @@ function readNotes(): Nota[] {
     return parsed.filter((n): n is Nota => {
       if (typeof n !== "object" || n === null) return false;
       const c = n as Record<string, unknown>;
-      return typeof c.id === "string" && typeof c.titulo === "string" && typeof c.conteudo === "string";
+      return typeof c["id"] === "string" && typeof c["titulo"] === "string" && typeof c["conteudo"] === "string";
     });
   } catch {
     return [];

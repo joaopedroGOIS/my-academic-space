@@ -46,7 +46,7 @@ export function EditorToolbar({ onCommand }: { onCommand: (command: string, valu
   return (
     <div className="flex flex-wrap items-center gap-1 border-b border-border bg-card px-4 py-2 sm:px-6">
       {groups.map((group, groupIndex) => (
-        <div key={group[0].command} className="flex items-center gap-1">
+        <div key={group.map((action) => action.label).join("-")} className="flex items-center gap-1">
           {groupIndex > 0 ? <span className="mx-1 h-5 w-px bg-border" aria-hidden="true" /> : null}
           {group.map(({ icon: Icon, label, command, value }) => (
             <button

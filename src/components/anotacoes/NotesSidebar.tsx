@@ -96,7 +96,7 @@ export function NotesSidebar({
             <p className="text-xs text-muted-foreground">
               {totalResults === 0
                 ? "Nenhum resultado"
-                : `${totalResults} resultado${totalResults > 1 ? "s" : ""} para \"${query.trim()}\"`"}
+                : `${totalResults} resultado${totalResults > 1 ? "s" : ""} para \"${query.trim()}\"`}
             </p>
             <button
               type="button"

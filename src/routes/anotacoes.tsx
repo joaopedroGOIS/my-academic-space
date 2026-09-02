@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { NotebookPen } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -9,8 +9,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { NoteEditor, type SaveStatus } from "@/components/anotacoes/NoteEditor";
 import { NotesSidebar, type NotesGroup } from "@/components/anotacoes/NotesSidebar";
+import { MaterialsPanel } from "@/components/anotacoes/MaterialsPanel";
 import { useMaterias } from "@/lib/academicStorage";
-import { useNotas, type Nota } from "@/lib/notesStorage";
+import { useNotas, type Nota, type MaterialAnexo } from "@/lib/notesStorage";
 
 export const Route = createFileRoute("/anotacoes")({
   head: () => ({
@@ -33,6 +34,7 @@ function AnotacoesPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [draftTitle, setDraftTitle] = useState("");
   const [draftMateriaId, setDraftMateriaId] = useState<string>("none");
+  const [materiaisOpen, setMateriaisOpen] = useState(false);
   const savedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => () => { if (savedTimer.current) clearTimeout(savedTimer.current); }, []);
@@ -62,6 +64,20 @@ function AnotacoesPage() {
     if (orphans.length) result.push({ materiaId: null, materiaNome: "Sem matéria", notas: orphans });
     return result;
   }, [filtered, materias]);
+
+  const handleAddMateriais = useCallback((novos: MaterialAnexo[]) => {
+    if (!selected) return;
+    const atuais = selected.materiais ?? [];
+    update(selected.id, { materiais: [...atuais, ...novos] });
+    markSaving();
+  }, [selected, update]);
+
+  const handleRemoveMaterial = useCallback((materialId: string) => {
+    if (!selected) return;
+    const atuais = selected.materiais ?? [];
+    update(selected.id, { materiais: atuais.filter((m) => m.id !== materialId) });
+    markSaving();
+  }, [selected, update]);
 
   const markSaving = () => {
     setStatus("saving");
@@ -101,18 +117,40 @@ function AnotacoesPage() {
         query={query}
         onQueryChange={setQuery}
         selectedId={selectedId}
-        onSelect={(id) => { setSelectedId(id); setStatus("idle"); }}
+        onSelect={(id) => { setSelectedId(id); setStatus("idle"); setMateriaisOpen(false); }}
         onCreate={handleCreate}
         onDelete={handleDelete}
       />
 
       {selected ? (
-        <NoteEditor
-          nota={selected}
-          materias={materias}
-          status={status}
-          onChange={(patch) => { update(selected.id, patch); markSaving(); }}
-        />
+        <div className="flex flex-1 flex-col bg-card relative overflow-hidden">
+          <div className="flex items-center justify-between border-b border-border bg-card px-4 py-2 sm:px-6">
+            <span className="min-h-[20px] text-xs font-medium text-muted-foreground">
+              {status === "saving" ? "⏳ Salvando..." : status === "saved" ? "✓ Salvo" : ""}
+            </span>
+            <Button variant="outline" size="sm" onClick={() => setMateriaisOpen((v) => !v)} className="gap-1.5">
+              📎 Materiais
+            </Button>
+          </div>
+          <div className="flex flex-1 overflow-hidden">
+            <div className="flex flex-1 flex-col overflow-auto">
+              <NoteEditor
+                nota={selected}
+                materias={materias}
+                status={status}
+                onChange={(patch) => { update(selected.id, patch); markSaving(); }}
+              />
+            </div>
+            {materiaisOpen && (
+              <MaterialsPanel
+                materiais={selected.materiais ?? []}
+                onAdd={handleAddMateriais}
+                onRemove={handleRemoveMaterial}
+                onClose={() => setMateriaisOpen(false)}
+              />
+            )}
+          </div>
+        </div>
       ) : (
         <section className="flex flex-1 items-center justify-center bg-card p-8">
           <div className="max-w-md text-center">

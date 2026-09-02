@@ -1,11 +1,24 @@
 import { useCallback, useEffect, useState } from "react";
 
+export type MaterialTipo = "pdf" | "image" | "other";
+
+export interface MaterialAnexo {
+  id: string;
+  nome: string;
+  tipo: MaterialTipo;
+  mime: string;
+  size: number;
+  dataUrl: string;
+  createdAt: string;
+}
+
 export interface Nota {
   id: string;
   titulo: string;
   materiaId: string | null;
   conteudo: string;
   updatedAt: string;
+  materiais?: MaterialAnexo[];
 }
 
 const STORAGE_KEY = "acad_notas";
@@ -51,6 +64,7 @@ export function useNotas() {
       titulo: titulo.trim() || "Sem título",
       materiaId,
       conteudo: "",
+      materiais: [],
       updatedAt: new Date().toISOString(),
     };
     setItems((prev) => [nota, ...prev]);

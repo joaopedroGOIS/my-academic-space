@@ -50,11 +50,19 @@ function TrabalhosPage() {
       : undefined;
 
   const handleSubmit = (values: TrabalhoFormValues) => {
+    const payload = {
+      nome: values.nome,
+      tipo: values.tipo,
+      materiaId: values.materiaId,
+      materiaNome: values.materiaNome,
+      progresso: values.progresso,
+      ...(values.prazo ? { prazo: values.prazo } : {}),
+    };
     if (formMode === "create") {
-      const created = add(values);
+      const created = add(payload);
       setSelectedId(created.id);
     } else if (selected) {
-      update(selected.id, values);
+      update(selected.id, { ...payload, prazo: values.prazo || undefined });
     }
     setFormOpen(false);
   };

@@ -12,7 +12,7 @@ export interface TrabalhoFormValues {
   tipo: TrabalhoTipo;
   materiaId: string;
   materiaNome: string;
-  prazo?: string;
+  prazo: string;
   progresso: number;
 }
 
@@ -20,7 +20,7 @@ interface TrabalhoFormProps {
   open: boolean;
   mode: "create" | "edit";
   materias: Materia[];
-  initial?: TrabalhoFormValues;
+  initial?: TrabalhoFormValues | undefined;
   onOpenChange: (open: boolean) => void;
   onSubmit: (values: TrabalhoFormValues) => void;
 }
@@ -30,6 +30,7 @@ const EMPTY: TrabalhoFormValues = {
   tipo: "Trabalho",
   materiaId: "",
   materiaNome: "",
+  prazo: "",
   progresso: 0,
 };
 
@@ -57,7 +58,6 @@ export function TrabalhoForm({ open, mode, materias, initial, onOpenChange, onSu
       ...values,
       nome: values.nome.trim(),
       materiaNome,
-      prazo: values.prazo ? values.prazo : undefined,
       progresso: clampProgresso(values.progresso),
     });
   };

@@ -1,4 +1,5 @@
 import { BookOpen, NotebookPen, Plus, Search, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import { BackButton } from "@/components/layout/BackButton";
 import { Button } from "@/components/ui/button";
@@ -31,8 +32,46 @@ export function NotesSidebar({
   onCreate,
   onDelete,
 }: NotesSidebarProps) {
+  const [isFocus, setIsFocus] = useState(false);
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail as { isFocus?: boolean } | undefined;
+      if (detail && typeof detail.isFocus === "boolean") setIsFocus(detail.isFocus);
+    };
+    window.addEventListener("anotacoes:focus", handler as EventListener);
+    return () => window.removeEventListener("anotacoes:focus", handler as EventListener);
+  }, []);
+
+  const normalize = (v: string) =>
+    v
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+
+  const q = normalize(query.trim());
+  const isSearching = q.length > 0;
+
+  const filteredGroups: NotesGroup[] = isSearching
+    ? groups
+        .map((group) => {
+          const materiaMatch = normalize(group.materiaNome).includes(q);
+          if (materiaMatch) return group;
+          const notasFiltradas = group.notas.filter((nota) =>
+            normalize(nota.titulo || "").includes(q),
+          );
+          return { ...group, notas: notasFiltradas };
+        })
+        .filter((g) => g.notas.length > 0)
+    : groups;
+
+  const totalResults = filteredGroups.reduce((acc, g) => acc + g.notas.length, 0);
+
   return (
-    <aside className="flex shrink-0 flex-col border-b border-border bg-card lg:h-full lg:w-72 lg:border-b-0 lg:border-r">
+    <aside
+      id="notes-sidebar"
+      className={`flex shrink-0 flex-col border-b border-border bg-card transition-all duration-200 ease-out lg:h-full lg:w-72 lg:border-b-0 lg:border-r ${isFocus ? "hidden lg:hidden" : ""}`}
+    >
       <div className="space-y-3 border-b border-border p-4">
         <div className="flex items-center gap-2">
           <BackButton label="Anotações" />
@@ -52,12 +91,28 @@ export function NotesSidebar({
       </div>
 
       <div className="flex-1 space-y-5 overflow-y-auto p-4 lg:max-h-none max-h-72">
-        {groups.length === 0 ? (
+          {isSearching ? (
+          <div className="mb-3 flex items-center justify-between rounded-lg bg-muted/40 px-2.5 py-1.5">
+            <p className="text-xs text-muted-foreground">
+              {totalResults === 0
+                ? "Nenhum resultado"
+                : `${totalResults} resultado${totalResults > 1 ? "s" : ""} para \"${query.trim()}\"`"}
+            </p>
+            <button
+              type="button"
+              onClick={() => onQueryChange("")}
+              className="text-xs font-medium text-primary hover:underline cursor-pointer"
+            >
+              Limpar
+            </button>
+          </div>
+        ) : null}
+        {filteredGroups.length === 0 ? (
           <p className="px-1 py-6 text-center text-sm text-muted-foreground">
-            Nenhuma anotação encontrada.
+            {isSearching ? `Nenhuma anotação para \"${query.trim()}\".` : "Nenhuma anotação encontrada."}
           </p>
         ) : (
-          groups.map((group) => (
+          filteredGroups.map((group) => (
             <div key={group.materiaId ?? "sem-materia"}>
               <p className="flex items-center gap-1.5 px-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 <BookOpen className="size-3.5" />

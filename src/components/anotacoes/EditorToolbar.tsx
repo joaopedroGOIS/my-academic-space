@@ -10,6 +10,8 @@ import {
   Highlighter,
   Undo2,
   Redo2,
+  Maximize2,
+  Minimize2,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -42,29 +44,43 @@ const groups: ToolbarAction[][] = [
   ],
 ];
 
-export function EditorToolbar({ onCommand }: { onCommand: (command: string, value?: string) => void }) {
+export function EditorToolbar({ onCommand, isFocusMode, onToggleFocus }: { onCommand: (command: string, value?: string) => void; isFocusMode?: boolean; onToggleFocus?: () => void }) {
   return (
-    <div className="flex flex-wrap items-center gap-1 border-b border-border bg-card px-4 py-2 sm:px-6">
-      {groups.map((group, groupIndex) => (
-        <div key={group.map((action) => action.label).join("-")} className="flex items-center gap-1">
-          {groupIndex > 0 ? <span className="mx-1 h-5 w-px bg-border" aria-hidden="true" /> : null}
-          {group.map(({ icon: Icon, label, command, value }) => (
-            <button
-              key={label}
-              type="button"
-              aria-label={label}
-              title={label}
-              onMouseDown={(event) => {
-                event.preventDefault();
-                onCommand(command, value);
-              }}
-              className="rounded-lg p-2 text-muted-foreground transition-all duration-200 hover:-translate-y-[1px] hover:bg-accent hover:text-primary hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
-            >
-              <Icon className="size-4" />
-            </button>
-          ))}
-        </div>
-      ))}
+    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-card px-4 py-2 sm:px-6">
+      <div className="flex flex-wrap items-center gap-1">
+        {groups.map((group, groupIndex) => (
+          <div key={group.map((action) => action.label).join("-")} className="flex items-center gap-1">
+            {groupIndex > 0 ? <span className="mx-1 h-5 w-px bg-border" aria-hidden="true" /> : null}
+            {group.map(({ icon: Icon, label, command, value }) => (
+              <button
+                key={label}
+                type="button"
+                aria-label={label}
+                title={label}
+                onMouseDown={(event) => {
+                  event.preventDefault();
+                  onCommand(command, value);
+                }}
+                className="rounded-lg p-2 text-muted-foreground transition-all duration-200 hover:-translate-y-[1px] hover:bg-accent hover:text-primary hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
+              >
+                <Icon className="size-4" />
+              </button>
+            ))}
+          </div>
+        ))}
+      </div>
+      {onToggleFocus ? (
+        <button
+          type="button"
+          aria-label={isFocusMode ? "Sair do modo foco" : "Modo foco"}
+          title={isFocusMode ? "Sair do modo foco" : "Modo foco"}
+          onClick={onToggleFocus}
+          className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground transition-all duration-200 hover:-translate-y-[1px] hover:bg-accent hover:text-primary hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer shrink-0"
+        >
+          {isFocusMode ? <Minimize2 className="size-3.5" /> : <Maximize2 className="size-3.5" />}
+          <span className="hidden sm:inline">{isFocusMode ? "Sair do modo foco" : "Modo foco"}</span>
+        </button>
+      ) : null}
     </div>
   );
 }

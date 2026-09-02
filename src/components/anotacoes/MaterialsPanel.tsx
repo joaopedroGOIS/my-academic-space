@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { X, Eye, Trash2 } from "lucide-react";
 import type { MaterialAnexo, MaterialTipo } from "@/lib/notesStorage";
@@ -36,6 +36,16 @@ function formatSize(bytes: number): string {
 
 export function MaterialsPanel({ materiais, onAdd, onRemove, onClose }: Props) {
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const [isFocus, setIsFocus] = useState(false);
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const d = (e as CustomEvent).detail as { isFocus?: boolean } | undefined;
+      if (d && typeof d.isFocus === "boolean") setIsFocus(d.isFocus);
+    };
+    window.addEventListener("anotacoes:focus", handler as EventListener);
+    return () => window.removeEventListener("anotacoes:focus", handler as EventListener);
+  }, []);
 
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -78,7 +88,10 @@ export function MaterialsPanel({ materiais, onAdd, onRemove, onClose }: Props) {
   };
 
   return (
-    <aside className="flex w-[340px] max-w-[88vw] shrink-0 flex-col border-l border-border bg-card shadow-sm">
+    <aside
+      id="materials-panel"
+      className={`flex w-[340px] max-w-[88vw] shrink-0 flex-col border-l border-border bg-card shadow-sm transition-all duration-200 ${isFocus ? "hidden" : ""}`}
+    >
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <div>
           <h3 className="text-sm font-semibold text-foreground">📎 Materiais</h3>

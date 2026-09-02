@@ -77,14 +77,18 @@ function HomePage() {
         <div className="space-y-6">
           <SurfaceCard title="Favoritos" icon={Star} bodyClassName="p-3 space-y-2">
             {favorites.map((m) => (
-              <ModuleTile key={m.key} module={m} />
+              <div key={m.key} className="rounded-xl border border-transparent transition-all duration-200 hover:-translate-y-[1px] hover:border-[#EDE9FE] hover:shadow-sm hover:shadow-violet-100/60">
+                <ModuleTile module={m} />
+              </div>
             ))}
           </SurfaceCard>
 
           <SurfaceCard title="Todos os módulos" icon={LayoutGrid} bodyClassName="p-3">
             <div className="grid grid-cols-3 gap-2 xl:grid-cols-2">
               {otherModules.map((m) => (
-                <ModuleTile key={m.key} module={m} variant="tile" />
+                <div key={m.key} className="rounded-xl border border-transparent transition-all duration-200 hover:-translate-y-[1px] hover:border-[#EDE9FE] hover:shadow-sm hover:shadow-violet-100/60">
+                  <ModuleTile module={m} variant="tile" />
+                </div>
               ))}
             </div>
           </SurfaceCard>
@@ -99,7 +103,7 @@ function HomePage() {
                   key={action.label}
                   asChild
                   variant={action.primary ? "default" : "outline"}
-                  className="h-auto justify-start gap-3 py-3"
+                  className="h-auto justify-start gap-3 py-3 transition-all duration-200 hover:-translate-y-[1px] hover:shadow-sm hover:shadow-violet-100/50 hover:border-[#EDE9FE]"
                 >
                   <Link to={action.to}>
                     <action.icon className="size-4 shrink-0" />
@@ -117,7 +121,7 @@ function HomePage() {
                 return (
                   <li
                     key={item.id}
-                    className="flex items-center gap-3 rounded-xl px-3 py-3 transition-colors hover:bg-muted"
+                    className="flex cursor-pointer items-center gap-3 rounded-xl border border-transparent px-3 py-3 transition-all duration-200 hover:-translate-y-[1px] hover:border-[#EDE9FE] hover:bg-white hover:shadow-sm hover:shadow-violet-100/60"
                   >
                     <div className="grid size-9 shrink-0 place-items-center rounded-lg bg-accent">
                       <Icon className="size-4 text-primary" />
@@ -149,7 +153,7 @@ function HomePage() {
             />
             <Link
               to="/calendario"
-              className="mt-4 flex items-center justify-center gap-1 rounded-xl border border-border py-2 text-sm font-medium text-primary transition-colors hover:bg-accent"
+              className="mt-4 flex items-center justify-center gap-1 rounded-xl border border-border py-2 text-sm font-medium text-primary transition-all duration-200 hover:-translate-y-[1px] hover:border-[#EDE9FE] hover:bg-white hover:shadow-sm hover:shadow-violet-100/60"
             >
               Ver calendário completo
               <ChevronRight className="size-4" />

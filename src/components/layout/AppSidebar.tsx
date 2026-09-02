@@ -60,11 +60,11 @@ export function AppSidebar({
               onClick={onNavigate}
               title={collapsed ? item.label : undefined}
               className={cn(
-                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
+                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 ease-out",
                 collapsed && "justify-center px-0",
                 active
                   ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                  : "text-muted-foreground hover:-translate-y-[1px] hover:border hover:border-[#EDE9FE] hover:bg-muted hover:text-foreground hover:shadow-sm border border-transparent",
               )}
             >
               <item.icon className={cn("size-5 shrink-0", active && "text-primary")} />

@@ -81,7 +81,7 @@ export interface Trabalho {
   tipo: TrabalhoTipo;
   materiaId: string;
   materiaNome: string;
-  prazo?: string;
+  prazo?: string | undefined;
   progresso: number;
   createdAt: string;
   materiais?: Material[];

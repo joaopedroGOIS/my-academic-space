@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { NotebookPen, Plus, Search } from "lucide-react";
 
+import { BackButton } from "@/components/layout/BackButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { noteSubjects } from "@/data/mockData";
@@ -24,7 +25,8 @@ function AnotacoesPage() {
       <aside className="flex shrink-0 flex-col border-b border-border bg-card lg:h-full lg:w-72 lg:border-b-0 lg:border-r">
         <div className="space-y-3 border-b border-border p-4">
           <div className="flex items-center gap-2">
-            <NotebookPen className="size-4 text-primary" />
+            <BackButton label="Anotações" />
+            <NotebookPen className="size-4 shrink-0 text-primary" />
             <h1 className="text-sm font-semibold text-foreground">Anotações</h1>
           </div>
           <div className="relative">

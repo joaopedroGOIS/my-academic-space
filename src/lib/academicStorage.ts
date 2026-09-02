@@ -64,23 +64,75 @@ export function useMaterias() {
   const remove = (id: string) => setItems((p) => p.filter((x) => x.id !== id));
   return { items, add, update, remove };
 }
+export type TrabalhoTipo = "Trabalho" | "Tarefa";
+export type TrabalhoStatus = "Não iniciado" | "Em andamento" | "Concluído";
+
+export interface Material {
+  id: string;
+  nome: string;
+  tipo: "pdf" | "imagem";
+  mime: string;
+  dataUrl: string;
+}
+
 export interface Trabalho {
   id: string;
   nome: string;
-  tipo: "Trabalho" | "Tarefa";
+  tipo: TrabalhoTipo;
   materiaId: string;
   materiaNome: string;
   prazo?: string;
   progresso: number;
   createdAt: string;
+  materiais?: Material[];
+}
+
+export function statusDoProgresso(progresso: number): TrabalhoStatus {
+  if (progresso >= 100) return "Concluído";
+  if (progresso <= 0) return "Não iniciado";
+  return "Em andamento";
+}
+
+export function clampProgresso(value: unknown): number {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return 0;
+  return Math.min(100, Math.max(0, Math.round(n)));
 }
 
 export function useTrabalhos() {
   const [items, setItems] = useLocalList<Trabalho>("acad_trabalhos");
-  const add = (data: Omit<Trabalho, "id" | "createdAt">) => {
-    const t: Trabalho = { id: crypto.randomUUID(), createdAt: new Date().toISOString(), ...data };
+
+  const add = (data: Omit<Trabalho, "id" | "createdAt">): Trabalho => {
+    const t: Trabalho = {
+      id: crypto.randomUUID(),
+      createdAt: new Date().toISOString(),
+      materiais: [],
+      ...data,
+      progresso: clampProgresso(data.progresso),
+    };
     setItems((p) => [...p, t]);
     return t;
   };
-  return { items, add };
+
+  const update = (id: string, patch: Partial<Omit<Trabalho, "id" | "createdAt">>) =>
+    setItems((p) =>
+      p.map((x) =>
+        x.id === id
+          ? { ...x, ...patch, progresso: patch.progresso === undefined ? x.progresso : clampProgresso(patch.progresso) }
+          : x,
+      ),
+    );
+
+  const remove = (id: string) => setItems((p) => p.filter((x) => x.id !== id));
+
+  const addMaterial = (id: string, material: Material) =>
+    setItems((p) => p.map((x) => (x.id === id ? { ...x, materiais: [...(x.materiais ?? []), material] } : x)));
+
+  const removeMaterial = (id: string, materialId: string) =>
+    setItems((p) =>
+      p.map((x) => (x.id === id ? { ...x, materiais: (x.materiais ?? []).filter((m) => m.id !== materialId) } : x)),
+    );
+
+  return { items, add, update, remove, addMaterial, removeMaterial };
 }
+

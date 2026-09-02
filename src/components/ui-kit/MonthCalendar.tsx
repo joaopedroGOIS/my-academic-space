@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-const WEEKDAYS = ["D", "S", "T", "Q", "Q", "S", "S"];
+const WEEKDAYS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 export const MONTHS = [
   "Janeiro",
   "Fevereiro",
@@ -29,6 +29,8 @@ interface MonthCalendarProps {
   year: number;
   month: number;
   today?: Date;
+  selectedDay?: number | null;
+  onSelectDay?: (day: number) => void;
   eventDays?: number[];
   size?: "compact" | "full";
 }
@@ -37,6 +39,8 @@ export function MonthCalendar({
   year,
   month,
   today = new Date(),
+  selectedDay = null,
+  onSelectDay,
   eventDays = [],
   size = "compact",
 }: MonthCalendarProps) {
@@ -46,45 +50,55 @@ export function MonthCalendar({
 
   return (
     <div>
-      <div className="grid grid-cols-7 gap-1 pb-2">
+      <div className="grid grid-cols-7 gap-1 pb-3">
         {WEEKDAYS.map((d, i) => (
           <div
             key={`${d}-${i}`}
-            className="text-center text-[11px] font-medium uppercase text-muted-foreground"
+            className="py-1 text-center text-xs font-medium text-muted-foreground"
           >
             {d}
           </div>
         ))}
       </div>
-      <div className="grid grid-cols-7 gap-1">
+      <div className="grid grid-cols-7 gap-1 sm:gap-2">
         {cells.map((day, i) => {
-          if (day === null) return <div key={i} className={full ? "min-h-24" : "h-9"} />;
+          if (day === null) return <div key={i} className={full ? "min-h-[96px] sm:min-h-[110px]" : "h-9"} />;
           const isToday = isCurrentMonth && today.getDate() === day;
+          const isSelected = selectedDay === day;
           const hasEvent = eventDays.includes(day);
 
           if (full) {
             return (
-              <div
+              <button
                 key={i}
+                type="button"
+                onClick={() => onSelectDay?.(day)}
                 className={cn(
-                  "min-h-24 rounded-xl border border-border p-2 transition-colors hover:bg-muted",
-                  isToday && "border-primary/40 bg-accent",
+                  "flex min-h-[96px] flex-col items-start gap-1 rounded-xl border bg-card p-2 text-left transition-colors hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:min-h-[110px]",
+                  isToday ? "border-primary/30 bg-accent/50" : "border-border",
+                  isSelected && "border-primary bg-accent ring-1 ring-primary/20",
                 )}
               >
                 <span
                   className={cn(
-                    "inline-grid size-6 place-items-center rounded-full text-xs font-medium",
-                    isToday ? "bg-primary text-primary-foreground" : "text-foreground",
+                    "inline-grid size-7 place-items-center rounded-full text-xs font-medium transition-colors",
+                    isToday
+                      ? "bg-primary text-primary-foreground"
+                      : isSelected
+                        ? "bg-primary text-primary-foreground"
+                        : "text-foreground",
                   )}
                 >
                   {day}
                 </span>
-                {hasEvent && (
-                  <p className="mt-2 truncate rounded-md bg-accent px-1.5 py-1 text-[11px] font-medium text-accent-foreground">
-                    Evento
-                  </p>
-                )}
-              </div>
+              <div className="min-h-6 w-full">
+                  {hasEvent && (
+                    <p className="mt-1 truncate rounded-md bg-accent px-1.5 py-1 text-[11px] font-medium text-accent-foreground">
+                      Evento
+                    </p>
+                  )}
+                </div>
+              </button>
             );
           }
 

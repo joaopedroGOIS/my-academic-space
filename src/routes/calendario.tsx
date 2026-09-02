@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { CalendarDays, ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 
 import { PageContainer } from "@/components/layout/PageContainer";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { SurfaceCard } from "@/components/ui-kit/SurfaceCard";
 import { MonthCalendar, MONTHS } from "@/components/ui-kit/MonthCalendar";
 import { Button } from "@/components/ui/button";
-import { eventDays } from "@/data/mockData";
 
 export const Route = createFileRoute("/calendario")({
   head: () => ({
@@ -20,66 +20,70 @@ export const Route = createFileRoute("/calendario")({
   component: CalendarioPage,
 });
 
+function BackButton({ children }: { children: React.ReactNode }) {
+  return (
+    <Link
+      to="/"
+      className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground transition-colors hover:text-primary"
+    >
+      <ChevronLeft className="size-5" />
+      {children}
+    </Link>
+  );
+}
+
 function CalendarioPage() {
   const today = new Date();
   const [cursor, setCursor] = useState({ year: today.getFullYear(), month: today.getMonth() });
+  const [selectedDay, setSelectedDay] = useState<number | null>(null);
 
   const shift = (delta: number) => {
     setCursor(({ year, month }) => {
       const next = new Date(year, month + delta, 1);
       return { year: next.getFullYear(), month: next.getMonth() };
     });
+    setSelectedDay(null);
   };
 
-  const isCurrentMonth =
-    cursor.year === today.getFullYear() && cursor.month === today.getMonth();
+    const goToday = () => {
+    setCursor({ year: today.getFullYear(), month: today.getMonth() });
+    setSelectedDay(today.getDate());
+  };
 
   return (
-    <PageContainer>
-      <PageHeader
-        icon={CalendarDays}
-        title="Calendário"
-        description="Aulas, provas e entregas"
-        action={
-          <Button className="shrink-0">
-            <Plus className="size-4" />
-            <span className="hidden sm:inline">Novo evento</span>
-          </Button>
-        }
-      />
+          <PageContainer className="max-w-5xl">
+      <div className="pt-1">
+        <BackButton>Calendário</BackButton>
+      </div>
 
-      <div className="rounded-2xl border border-border bg-card">
-        <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
-          <h2 className="truncate text-sm font-semibold text-foreground">
-            {MONTHS[cursor.month]} {cursor.year}
-          </h2>
-          <div className="flex shrink-0 items-center gap-1">
-            <Button variant="outline" size="icon" aria-label="Mês anterior" onClick={() => shift(-1)}>
+      <SurfaceCard className="overflow-hidden" bodyClassName="p-0">
+        <div className="flex items-center justify-between gap-2 border-b border-border px-4 py-3 sm:px-6">
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" aria-label="Mês anterior" onClick={() => shift(-1)} className="h-8 w-8 hover:bg-muted">
               <ChevronLeft className="size-4" />
             </Button>
-            <Button
-              variant="outline"
-              onClick={() => setCursor({ year: today.getFullYear(), month: today.getMonth() })}
-            >
-              Hoje
-            </Button>
-            <Button variant="outline" size="icon" aria-label="Próximo mês" onClick={() => shift(1)}>
+            <h2 className="min-w-[140px] text-center text-sm font-semibold capitalize text-foreground sm:min-w-[180px]">
+              {MONTHS[cursor.month]} {cursor.year}
+            </h2>
+            <Button variant="ghost" size="icon" aria-label="Próximo mês" onClick={() => shift(1)} className="h-8 w-8 hover:bg-muted">
               <ChevronRight className="size-4" />
             </Button>
           </div>
+          <Button variant="outline" size="sm" onClick={goToday} className="h-8 px-4 text-xs font-medium">
+            Hoje
+          </Button>
         </div>
-        <div className="overflow-x-auto p-4">
-          <div className="min-w-[640px]">
-            <MonthCalendar
-              year={cursor.year}
-              month={cursor.month}
-              today={today}
-              eventDays={isCurrentMonth ? eventDays : []}
-              size="full"
-            />
-          </div>
+          <div className="bg-card p-4 sm:p-6">
+          <MonthCalendar
+            year={cursor.year}
+            month={cursor.month}
+            today={today}
+            selectedDay={selectedDay}
+            onSelectDay={(day) => setSelectedDay((prev) => (prev === day ? null : day))}
+            size="full"
+          />
         </div>
-      </div>
+      </SurfaceCard>
     </PageContainer>
   );
 }

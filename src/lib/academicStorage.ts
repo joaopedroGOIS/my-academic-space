@@ -64,3 +64,23 @@ export function useMaterias() {
   const remove = (id: string) => setItems((p) => p.filter((x) => x.id !== id));
   return { items, add, update, remove };
 }
+export interface Trabalho {
+  id: string;
+  nome: string;
+  tipo: "Trabalho" | "Tarefa";
+  materiaId: string;
+  materiaNome: string;
+  prazo?: string;
+  progresso: number;
+  createdAt: string;
+}
+
+export function useTrabalhos() {
+  const [items, setItems] = useLocalList<Trabalho>("acad_trabalhos");
+  const add = (data: Omit<Trabalho, "id" | "createdAt">) => {
+    const t: Trabalho = { id: crypto.randomUUID(), createdAt: new Date().toISOString(), ...data };
+    setItems((p) => [...p, t]);
+    return t;
+  };
+  return { items, add };
+}

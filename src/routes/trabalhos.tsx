@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ClipboardList, Plus, CalendarClock } from "lucide-react";
+import { ClipboardList, Plus } from "lucide-react";
 
 import { PageContainer } from "@/components/layout/PageContainer";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -27,38 +27,50 @@ function TrabalhosPage() {
         title="Trabalhos e Tarefas"
         description="Entregas e prazos"
         action={
-          <Button className="shrink-0">
+          <Button type="button" className="shrink-0" aria-label="Novo trabalho ou tarefa">
             <Plus className="size-4" />
-            <span className="hidden sm:inline">Nova tarefa</span>
+            <span>+ Novo</span>
           </Button>
         }
       />
 
-      <div className="space-y-3">
-        {tasks.map((task) => (
-          <article
-            key={task.id}
-            className="rounded-2xl border border-border bg-card p-5 transition-colors hover:border-primary/30"
-          >
-            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 sm:flex sm:justify-between">
-              <div className="min-w-0">
-                <h2 className="truncate text-sm font-semibold text-foreground">{task.title}</h2>
-                <p className="truncate text-xs text-muted-foreground">{task.subject}</p>
-              </div>
-              <div className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
-                <CalendarClock className="size-4" />
-                {task.deadline}
-              </div>
-            </div>
-            <div className="mt-4 flex items-center gap-3">
-              <ProgressBar value={task.progress} />
-              <span className="w-10 shrink-0 text-right text-xs font-semibold text-primary">
-                {task.progress}%
-              </span>
-            </div>
-          </article>
-        ))}
-      </div>
+      {tasks.length > 0 ? (
+        <div className="space-y-3">
+          {tasks.map((task: any) => {
+            const tipo = task.type ?? task.kind ?? (String(task.title).toLowerCase().includes("tarefa") ? "Tarefa" : "Trabalho");
+            const materia = task.subject ?? "Marketing";
+            const prazo = task.deadline ?? "15/09/2026";
+            const progresso = task.progress ?? 70;
+            return (
+              <article
+                key={task.id}
+                className="rounded-2xl border border-border bg-card p-5 shadow-sm transition-all duration-200 hover:-translate-y-[1px] hover:border-primary/20 hover:shadow-md"
+              >
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0 flex-1">
+                    <h2 className="truncate text-[15px] font-semibold text-foreground">{task.title}</h2>
+                    <p className="mt-1 truncate text-xs text-muted-foreground">{tipo} • {materia}</p>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
+                    <span aria-hidden>📅</span>
+                    <span>Entrega: {prazo}</span>
+                  </div>
+                </div>
+                <div className="mt-4 flex items-center gap-3">
+                  <ProgressBar value={progresso} />
+                  <span className="w-[88px] shrink-0 text-right text-xs font-semibold text-primary">{progresso}% concluído</span>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-16 text-center shadow-sm">
+          <div className="mx-auto grid size-12 place-items-center rounded-2xl bg-accent text-xl">📌</div>
+          <p className="mt-4 text-sm font-semibold text-foreground">Nenhum trabalho ou tarefa encontrado.</p>
+          <p className="mt-1 text-sm text-muted-foreground">Clique em "+ Novo" para adicionar seu primeiro item.</p>
+        </div>
+      )}
     </PageContainer>
   );
 }
